@@ -33,11 +33,14 @@ if st.button("Aggiungi Barcode"):
     else:
         st.error("Per favore, inserisci un barcode valido.")
 
-# Visualizzazione e gestione dei codici a barre inseriti
+# Visualizzazione dei codici a barre inseriti
 st.subheader("Gestione Codici a Barre Inseriti")
 if st.session_state['barcodes']:
     df = pd.DataFrame(st.session_state['barcodes'], columns=['Barcode'])
     df.index += 1  # Aggiusta l'indice per partire da 1
+
+    # Mostra la tabella prima della selezione
+    st.dataframe(df, use_container_width=True)
 
     # Selezione di un solo barcode da eliminare con opzione vuota
     options = ["Seleziona un barcode"] + df.index.tolist()
@@ -51,11 +54,10 @@ if st.session_state['barcodes']:
         else:
             st.warning("Seleziona un barcode valido per l'eliminazione.")
 
-    # Visualizza la tabella aggiornata
+    # Mostra la tabella aggiornata dopo l'eliminazione
     if st.session_state['barcodes']:
         df = pd.DataFrame(st.session_state['barcodes'], columns=['Barcode'])
         df.index += 1  # Ripristina l'indice per partire da 1
-        st.dataframe(df, use_container_width=True)
     else:
         st.info("Nessun barcode inserito.")
 else:
