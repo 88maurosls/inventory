@@ -13,7 +13,7 @@ if 'barcode_to_delete' not in st.session_state:
     st.session_state['barcode_to_delete'] = None
 
 # Funzione per esportare i dati in un file Excel
-def export_to_excel(data, file_name):
+def export_to_excel(data):
     output = BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
         df = pd.DataFrame(data, columns=['Barcode'])
@@ -81,9 +81,9 @@ else:
 
 # Esportazione in Excel e Download
 st.subheader("Esporta e Scarica Codici a Barre")
-file_name = st.text_input("Nome del file Excel", value="barcodes")
+file_name = st.text_input("Nome del file Excel", value="barcodes.xlsx")
 if st.session_state['barcodes']:
-    excel_file = export_to_excel(st.session_state['barcodes'], file_name)
+    excel_file = export_to_excel(st.session_state['barcodes'])
     st.download_button(label="Scarica il file Excel",
                        data=excel_file,
                        file_name=file_name,
