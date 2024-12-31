@@ -16,11 +16,6 @@ def export_to_excel(data, file_name):
     output.seek(0)
     return output
 
-# Funzione per rimuovere i barcode selezionati
-def remove_selected_barcodes(selected_indices):
-    for index in sorted(selected_indices, reverse=True):
-        del st.session_state['barcodes'][index]
-
 # Titolo dell'app
 st.title("Gestore Codici a Barre")
 
@@ -39,13 +34,15 @@ if st.session_state['barcodes']:
     df = pd.DataFrame(st.session_state['barcodes'], columns=['Barcode'])
     df.index += 1  # Aggiusta l'indice per partire da 1
 
-    # Visualizzazione tabella con selezione
-    selected_indices = st.multiselect("Seleziona i barcode da eliminare:", options=df.index, format_func=lambda x: df.loc[x, 'Barcode'])
+    edited_df = st.experimental_data_editor(df, use_container_width=True, num_rows="dynamic")
+
+    # Aggiorna i codici a barre in base alle modifiche
+    st.session_state['barcodes'] = edited_df['Barcode'].tolist()
 
     # Pulsante per eliminare i barcode selezionati
     if st.button("Elimina Barcode Selezionati"):
-        remove_selected_barcodes([i - 1 for i in selected_indices])  # Adegua l'indice
-        st.success("Barcode selezionati eliminati con successo!")
+        st.session_state['barcodes'] = []
+        st.success("Tutti i barcode sono stati eliminati con successo!")
 else:
     st.info("Nessun barcode inserito.")
 
