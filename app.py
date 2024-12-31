@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 from io import BytesIO
-from streamlit_extras.stylable_container import stylable_container
 
 # Stato dell'applicazione
 if 'barcodes' not in st.session_state:
@@ -21,6 +20,20 @@ def export_to_excel(data, file_name):
 def remove_selected_barcodes(selected_indices):
     for index in sorted(selected_indices, reverse=True):
         del st.session_state['barcodes'][index]
+
+# Aggiunta di stile CSS per rendere rossa la cella predefinita
+st.markdown(
+    """
+    <style>
+    .custom-selectbox div[data-baseweb="select"] {
+        background-color: #ffcccc !important;
+        border: 1px solid red !important;
+        color: black !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 # Titolo dell'app
 st.title("Gestore Codici a Barre")
@@ -42,12 +55,12 @@ if st.session_state['barcodes']:
 
     # Selezione di un solo barcode da eliminare con opzione vuota
     options = ["Seleziona un barcode"] + df.index.tolist()
-    with stylable_container(key="selectbox-container", styles={"background-color": "#ffcccc", "border": "1px solid red"}):
-        selected_row = st.selectbox(
-            "Seleziona il barcode da eliminare:",
-            options,
-            format_func=lambda x: "Seleziona un barcode" if x == "Seleziona un barcode" else df.loc[x]['Barcode'] if x in df.index else None,
-        )
+    selected_row = st.selectbox(
+        "Seleziona il barcode da eliminare:",
+        options,
+        format_func=lambda x: "Seleziona un barcode" if x == "Seleziona un barcode" else df.loc[x]['Barcode'] if x in df.index else None,
+        key="custom-selectbox",
+    )
 
     # Pulsante per eliminare il barcode selezionato
     if st.button("Elimina Barcode Selezionato"):
