@@ -7,6 +7,8 @@ if 'barcodes' not in st.session_state:
     st.session_state['barcodes'] = []
 if 'confirm_delete' not in st.session_state:
     st.session_state['confirm_delete'] = False
+if 'barcode_to_delete' not in st.session_state:
+    st.session_state['barcode_to_delete'] = None
 
 # Funzione per esportare i dati in un file Excel
 def export_to_excel(data, file_name):
@@ -18,7 +20,7 @@ def export_to_excel(data, file_name):
     output.seek(0)
     return output
 
-# Funzione per rimuovere i barcode selezionati
+# Funzione per rimuovere un barcode selezionato
 def remove_selected_barcode(index):
     del st.session_state['barcodes'][index]
 
@@ -40,15 +42,14 @@ if st.session_state['barcodes']:
     df = pd.DataFrame(st.session_state['barcodes'], columns=['Barcode'])
     df.index += 1  # Aggiusta l'indice per partire da 1
 
-    # Selezione di un solo barcode da eliminare con opzione vuota
-    options = ["Seleziona un barcode"] + df.index.tolist()
+    # Selezione di un solo barcode da eliminare
     selected_row = st.selectbox(
         "Seleziona il barcode da eliminare:",
-        options,
-        format_func=lambda x: "Seleziona un barcode" if x == "Seleziona un barcode" else df.loc[x - 1]['Barcode'] if x in df.index else None
+        options=["Seleziona un barcode"] + list(df.index),
+        format_func=lambda x: "Seleziona un barcode" if x == "Seleziona un barcode" else df.loc[x - 1, 'Barcode'] if isinstance(x, int) else None
     )
 
-    # Pulsante per confermare l'eliminazione
+    # Mostra il pulsante di eliminazione solo se è selezionato un barcode valido
     if st.button("Elimina Barcode Selezionato"):
         if selected_row != "Seleziona un barcode":
             st.session_state['confirm_delete'] = True
@@ -58,16 +59,19 @@ if st.session_state['barcodes']:
 
     # Mostra il messaggio di conferma
     if st.session_state['confirm_delete']:
-        st.warning(f"Sei sicuro di voler eliminare il barcode: {df.loc[st.session_state['barcode_to_delete']]['Barcode']}?")
+        barcode_to_confirm = st.session_state['barcodes'][st.session_state['barcode_to_delete']]
+        st.warning(f"Sei sicuro di voler eliminare il barcode: {barcode_to_confirm}?")
         col1, col2 = st.columns(2)
         with col1:
             if st.button("Conferma Eliminazione"):
                 remove_selected_barcode(st.session_state['barcode_to_delete'])
                 st.session_state['confirm_delete'] = False
+                st.session_state['barcode_to_delete'] = None
                 st.success("Barcode eliminato con successo!")
         with col2:
             if st.button("Annulla"):
                 st.session_state['confirm_delete'] = False
+                st.session_state['barcode_to_delete'] = None
 
     # Visualizza la tabella aggiornata
     if st.session_state['barcodes']:
