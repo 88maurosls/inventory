@@ -39,16 +39,17 @@ if st.session_state['barcodes']:
     df = pd.DataFrame(st.session_state['barcodes'], columns=['Barcode'])
     df.index += 1  # Aggiusta l'indice per partire da 1
 
-    # Selezione di un solo barcode da eliminare
-    selected_row = st.selectbox("Seleziona il barcode da eliminare:", df.index, format_func=lambda x: df.loc[x]['Barcode'])
+    # Selezione di un solo barcode da eliminare con opzione vuota
+    options = ["Seleziona un barcode"] + df.index.tolist()
+    selected_row = st.selectbox("Seleziona il barcode da eliminare:", options, format_func=lambda x: "Seleziona un barcode" if x == "Seleziona un barcode" else df.loc[x]['Barcode'] if x in df.index else None)
 
     # Pulsante per eliminare il barcode selezionato
     if st.button("Elimina Barcode Selezionato"):
-        if selected_row:
+        if selected_row != "Seleziona un barcode":
             remove_selected_barcodes([selected_row - 1])  # Adegua l'indice
             st.success("Barcode selezionato eliminato con successo!")
         else:
-            st.warning("Nessun barcode selezionato per l'eliminazione.")
+            st.warning("Seleziona un barcode valido per l'eliminazione.")
 
     # Visualizza la tabella aggiornata
     if st.session_state['barcodes']:
