@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 from io import BytesIO
@@ -6,9 +5,6 @@ from io import BytesIO
 # Stato dell'applicazione
 if 'barcodes' not in st.session_state:
     st.session_state['barcodes'] = []
-
-if 'selected_barcodes' not in st.session_state:
-    st.session_state['selected_barcodes'] = []
 
 # Funzione per esportare i dati in un file Excel
 def export_to_excel(data, file_name):
@@ -20,6 +16,11 @@ def export_to_excel(data, file_name):
     output.seek(0)
     return output
 
+# Funzione per rimuovere i barcode selezionati
+def remove_selected_barcodes(selected_indices):
+    for index in sorted(selected_indices, reverse=True):
+        del st.session_state['barcodes'][index]
+
 # Titolo dell'app
 st.title("Gestore Codici a Barre")
 
@@ -27,27 +28,26 @@ st.title("Gestore Codici a Barre")
 barcode = st.text_input("Inserisci un barcode")
 if st.button("Aggiungi Barcode"):
     if barcode:
-        # Popup di conferma
-        if st.session_state.get("confirm", False) or st.button("Conferma"):
-            st.session_state['barcodes'].append(barcode)
-            st.success(f"Barcode {barcode} aggiunto con successo!")
-            st.session_state['confirm'] = False
-        elif not st.session_state.get("confirm", False):
-            st.warning(f"Confermare l'aggiunta del barcode {barcode}")
-            st.session_state['confirm'] = True
+        st.session_state['barcodes'].append(barcode)
+        st.success(f"Barcode {barcode} aggiunto con successo!")
     else:
         st.error("Per favore, inserisci un barcode valido.")
 
 # Visualizzazione dei codici a barre inseriti
 st.subheader("Anteprima Codici a Barre Inseriti")
 if st.session_state['barcodes']:
-    selected_barcodes = st.multiselect("Seleziona i barcode da eliminare:", st.session_state['barcodes'])
+    df = pd.DataFrame(st.session_state['barcodes'], columns=['Barcode'])
+    selected_rows = st.multiselect("Seleziona i barcode da eliminare:", df.index, format_func=lambda x: df.iloc[x]['Barcode'])
+
+    st.dataframe(df, use_container_width=True)
 
     # Pulsante per eliminare i barcode selezionati
     if st.button("Elimina Barcode Selezionati"):
-        for barcode in selected_barcodes:
-            st.session_state['barcodes'].remove(barcode)
-        st.success("Barcode selezionati eliminati con successo!")
+        if selected_rows:
+            remove_selected_barcodes(selected_rows)
+            st.success("Barcode selezionati eliminati con successo!")
+        else:
+            st.warning("Nessun barcode selezionato per l'eliminazione.")
 else:
     st.info("Nessun barcode inserito.")
 
