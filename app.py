@@ -5,8 +5,6 @@ from io import BytesIO
 # Stato dell'applicazione
 if 'barcodes' not in st.session_state:
     st.session_state['barcodes'] = []
-if 'updated' not in st.session_state:
-    st.session_state['updated'] = False
 
 # Funzione per esportare i dati in un file Excel
 def export_to_excel(data, file_name):
@@ -48,16 +46,19 @@ if st.session_state['barcodes']:
     if st.button("Elimina Barcode Selezionati"):
         if selected_rows:
             remove_selected_barcodes([i - 1 for i in selected_rows])  # Adegua l'indice
-            st.session_state['updated'] = True  # Imposta un flag di aggiornamento
             st.success("Barcode selezionati eliminati con successo!")
+            
+            # Ridisegna immediatamente la tabella
+            if st.session_state['barcodes']:
+                df = pd.DataFrame(st.session_state['barcodes'], columns=['Barcode'])
+                df.index += 1
+                st.dataframe(df, use_container_width=True)
+            else:
+                st.info("Nessun barcode inserito.")
         else:
             st.warning("Nessun barcode selezionato per l'eliminazione.")
 else:
     st.info("Nessun barcode inserito.")
-
-# Controllo per aggiornare la visualizzazione
-if st.session_state.get('updated', False):
-    st.session_state['updated'] = False  # Resetta il flag
 
 # Esportazione in Excel
 st.subheader("Esporta Codici a Barre")
