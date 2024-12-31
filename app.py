@@ -12,6 +12,9 @@ if 'confirm_delete' not in st.session_state:
 if 'barcode_to_delete' not in st.session_state:
     st.session_state['barcode_to_delete'] = None
 
+if 'last_file_name' not in st.session_state:
+    st.session_state['last_file_name'] = "barcodes.xlsx"
+
 # Funzione per esportare i dati in un file Excel
 def export_to_excel(data):
     output = BytesIO()
@@ -81,12 +84,15 @@ else:
 
 # Esportazione in Excel e Download
 st.subheader("Esporta e Scarica Codici a Barre")
-file_name = st.text_input("Nome del file Excel", value="barcodes.xlsx")
+file_name = st.text_input("Nome del file Excel", value=st.session_state['last_file_name'])
+if file_name != st.session_state['last_file_name']:
+    st.session_state['last_file_name'] = file_name
+
 if st.session_state['barcodes']:
     excel_file = export_to_excel(st.session_state['barcodes'])
     st.download_button(label="Scarica il file Excel",
                        data=excel_file,
-                       file_name=file_name,
+                       file_name=st.session_state['last_file_name'],
                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 else:
     st.error("Nessun barcode da esportare.")
