@@ -21,17 +21,18 @@ def remove_selected_barcodes(selected_indices):
     for index in sorted(selected_indices, reverse=True):
         del st.session_state['barcodes'][index]
 
-# Aggiunta di uno stile personalizzato
+# Aggiunta di stile CSS per la cella rossa
 st.markdown(
     """
     <style>
-    .selectbox-red .stSelectbox [data-baseweb="select"] {
-        background-color: #ffcccc;
-        border: 1px solid red;
+    .red-placeholder .stSelectbox div[data-baseweb="select"] {
+        background-color: #ffcccc !important;
+        border: 1px solid red !important;
+        color: black !important;
     }
     </style>
     """,
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
 
 # Titolo dell'app
@@ -54,12 +55,13 @@ if st.session_state['barcodes']:
 
     # Selezione di un solo barcode da eliminare con opzione vuota
     options = ["Seleziona un barcode"] + df.index.tolist()
-    selected_row = st.selectbox(
-        "Seleziona il barcode da eliminare:", 
-        options, 
-        format_func=lambda x: "Seleziona un barcode" if x == "Seleziona un barcode" else df.loc[x]['Barcode'] if x in df.index else None,
-        key="selectbox-red"
-    )
+    with st.container():
+        selected_row = st.selectbox(
+            "Seleziona il barcode da eliminare:",
+            options,
+            format_func=lambda x: "Seleziona un barcode" if x == "Seleziona un barcode" else df.loc[x]['Barcode'] if x in df.index else None,
+            key="red-placeholder",
+        )
 
     # Pulsante per eliminare il barcode selezionato
     if st.button("Elimina Barcode Selezionato"):
