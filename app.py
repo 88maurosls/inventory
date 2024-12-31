@@ -81,7 +81,7 @@ else:
 
 # Esportazione in Excel e Download
 st.subheader("Esporta e Scarica Codici a Barre")
-file_name = st.text_input("Nome del file Excel", value="barcodes.xlsx")
+file_name = st.text_input("Nome del file Excel", value="barcodes")
 if st.session_state['barcodes']:
     excel_file = export_to_excel(st.session_state['barcodes'], file_name)
     st.download_button(label="Scarica il file Excel",
