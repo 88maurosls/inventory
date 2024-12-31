@@ -46,23 +46,23 @@ if st.session_state['barcodes']:
     df.index += 1  # Aggiusta l'indice per partire da 1
 
     # Selezione di un solo barcode da eliminare con opzione vuota
-    options = ["Seleziona un barcode"] + df.index.tolist()
-    selected_row = st.selectbox("Seleziona il barcode da eliminare:", options, format_func=lambda x: "Seleziona un barcode" if x == "Seleziona un barcode" else df.loc[x - 1]['Barcode'] if x in df.index else None)
+    options = ["Seleziona un barcode"] + df['Barcode'].tolist()
+    selected_barcode = st.selectbox("Seleziona il barcode da eliminare:", options)
 
     # Pulsante per avviare la conferma di eliminazione
     if st.button("Elimina Barcode Selezionato"):
-        if selected_row != "Seleziona un barcode":
+        if selected_barcode != "Seleziona un barcode":
             st.session_state['confirm_delete'] = True
-            st.session_state['barcode_to_delete'] = selected_row - 1  # Adegua l'indice
+            st.session_state['barcode_to_delete'] = selected_barcode
         else:
             st.warning("Seleziona un barcode valido per l'eliminazione.")
 
     # Mostra il pulsante di conferma
     if st.session_state['confirm_delete']:
         barcode_to_delete = st.session_state['barcode_to_delete']
-        st.warning(f"Sei sicuro di voler eliminare il barcode: {st.session_state['barcodes'][barcode_to_delete]}?")
+        st.warning(f"Sei sicuro di voler eliminare il barcode: {barcode_to_delete}?")
         if st.button("Conferma Eliminazione"):
-            remove_selected_barcodes([barcode_to_delete])
+            st.session_state['barcodes'].remove(barcode_to_delete)
             st.success("Barcode selezionato eliminato con successo!")
             st.session_state['confirm_delete'] = False
             st.session_state['barcode_to_delete'] = None
