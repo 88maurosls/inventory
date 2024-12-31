@@ -15,10 +15,9 @@ if 'barcode_to_delete' not in st.session_state:
 # Funzione per esportare i dati in un file Excel
 def export_to_excel(data, file_name):
     output = BytesIO()
-    writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    df = pd.DataFrame(data, columns=['Barcode'])
-    df.to_excel(writer, index=False, sheet_name='Barcodes')
-    writer.save()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        df = pd.DataFrame(data, columns=['Barcode'])
+        df.to_excel(writer, index=False, sheet_name='Barcodes')
     output.seek(0)
     return output
 
