@@ -20,6 +20,7 @@ def export_to_excel(data, file_name):
 def remove_selected_barcodes(selected_indices):
     for index in sorted(selected_indices, reverse=True):
         del st.session_state['barcodes'][index]
+    st.experimental_rerun()  # Forza il rerun
 
 # Titolo dell'app
 st.title("Gestore Codici a Barre")
@@ -46,7 +47,6 @@ if st.session_state['barcodes']:
     if st.button("Elimina Barcode Selezionati"):
         if selected_rows:
             remove_selected_barcodes([i - 1 for i in selected_rows])  # Adegua l'indice
-            st.success("Barcode selezionati eliminati con successo!")
         else:
             st.warning("Nessun barcode selezionato per l'eliminazione.")
 else:
