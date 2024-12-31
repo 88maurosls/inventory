@@ -79,15 +79,14 @@ if st.session_state['barcodes']:
 else:
     st.info("Nessun barcode inserito.")
 
-# Esportazione in Excel
-st.subheader("Esporta Codici a Barre")
+# Esportazione in Excel e Download
+st.subheader("Esporta e Scarica Codici a Barre")
 file_name = st.text_input("Nome del file Excel", value="barcodes.xlsx")
-if st.button("Esporta in Excel"):
-    if st.session_state['barcodes']:
-        excel_file = export_to_excel(st.session_state['barcodes'], file_name)
-        st.download_button(label="Scarica il file Excel",
-                           data=excel_file,
-                           file_name=file_name,
-                           mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    else:
-        st.error("Nessun barcode da esportare.")
+if st.session_state['barcodes']:
+    excel_file = export_to_excel(st.session_state['barcodes'], file_name)
+    st.download_button(label="Scarica il file Excel",
+                       data=excel_file,
+                       file_name=file_name,
+                       mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+else:
+    st.error("Nessun barcode da esportare.")
