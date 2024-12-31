@@ -5,6 +5,8 @@ from io import BytesIO
 # Stato dell'applicazione
 if 'barcodes' not in st.session_state:
     st.session_state['barcodes'] = []
+if 'confirm_delete' not in st.session_state:
+    st.session_state['confirm_delete'] = False
 
 # Funzione per esportare i dati in un file Excel
 def export_to_excel(data, file_name):
@@ -17,26 +19,11 @@ def export_to_excel(data, file_name):
     return output
 
 # Funzione per rimuovere i barcode selezionati
-def remove_selected_barcodes(selected_indices):
-    for index in sorted(selected_indices, reverse=True):
-        del st.session_state['barcodes'][index]
-
-# Aggiunta di stile CSS per rendere rossa la cella predefinita
-st.markdown(
-    """
-    <style>
-    .custom-selectbox div[data-baseweb="select"] {
-        background-color: #ffcccc !important;
-        border: 1px solid red !important;
-        color: black !important;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+def remove_selected_barcode(index):
+    del st.session_state['barcodes'][index]
 
 # Titolo dell'app
-st.title("Gestore Codici a Barre")
+st.title("Gestione Codici a Barre")
 
 # Inserimento del codice a barre
 barcode = st.text_input("Inserisci un barcode")
@@ -48,7 +35,7 @@ if st.button("Aggiungi Barcode"):
         st.error("Per favore, inserisci un barcode valido.")
 
 # Visualizzazione e gestione dei codici a barre inseriti
-st.subheader("Gestione Codici a Barre Inseriti")
+st.subheader("Codici a Barre Inseriti")
 if st.session_state['barcodes']:
     df = pd.DataFrame(st.session_state['barcodes'], columns=['Barcode'])
     df.index += 1  # Aggiusta l'indice per partire da 1
@@ -58,17 +45,29 @@ if st.session_state['barcodes']:
     selected_row = st.selectbox(
         "Seleziona il barcode da eliminare:",
         options,
-        format_func=lambda x: "Seleziona un barcode" if x == "Seleziona un barcode" else df.loc[x]['Barcode'] if x in df.index else None,
-        key="custom-selectbox",
+        format_func=lambda x: "Seleziona un barcode" if x == "Seleziona un barcode" else df.loc[x - 1]['Barcode'] if x in df.index else None
     )
 
-    # Pulsante per eliminare il barcode selezionato
+    # Pulsante per confermare l'eliminazione
     if st.button("Elimina Barcode Selezionato"):
         if selected_row != "Seleziona un barcode":
-            remove_selected_barcodes([selected_row - 1])  # Adegua l'indice
-            st.success("Barcode selezionato eliminato con successo!")
+            st.session_state['confirm_delete'] = True
+            st.session_state['barcode_to_delete'] = selected_row - 1
         else:
             st.warning("Seleziona un barcode valido per l'eliminazione.")
+
+    # Mostra il messaggio di conferma
+    if st.session_state['confirm_delete']:
+        st.warning(f"Sei sicuro di voler eliminare il barcode: {df.loc[st.session_state['barcode_to_delete']]['Barcode']}?")
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Conferma Eliminazione"):
+                remove_selected_barcode(st.session_state['barcode_to_delete'])
+                st.session_state['confirm_delete'] = False
+                st.success("Barcode eliminato con successo!")
+        with col2:
+            if st.button("Annulla"):
+                st.session_state['confirm_delete'] = False
 
     # Visualizza la tabella aggiornata
     if st.session_state['barcodes']:
