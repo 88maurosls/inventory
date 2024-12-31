@@ -51,15 +51,11 @@ if st.session_state['barcodes']:
         if selected_row != "Seleziona un barcode":
             remove_selected_barcodes([selected_row - 1])  # Adegua l'indice
             st.success("Barcode selezionato eliminato con successo!")
+            
+            # Forza un aggiornamento immediato
+            st.experimental_rerun()
         else:
             st.warning("Seleziona un barcode valido per l'eliminazione.")
-
-    # Mostra la tabella aggiornata dopo l'eliminazione
-    if st.session_state['barcodes']:
-        df = pd.DataFrame(st.session_state['barcodes'], columns=['Barcode'])
-        df.index += 1  # Ripristina l'indice per partire da 1
-    else:
-        st.info("Nessun barcode inserito.")
 else:
     st.info("Nessun barcode inserito.")
 
