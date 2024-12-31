@@ -85,7 +85,7 @@ else:
 # Esportazione in Excel e Download
 st.subheader("Esporta e Scarica Codici a Barre")
 file_name = st.text_input("Nome del file Excel", value=st.session_state['last_file_name'])
-if file_name:
+if file_name != st.session_state['last_file_name']:
     st.session_state['last_file_name'] = file_name
 
 if st.session_state['barcodes']:
